@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Secure Network Provisioning Tool</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <div class="app-shell">
+
+    <!-- ===================== PERSISTENT AUTH SIDEBAR ===================== -->
+    <aside class="auth-sidebar">
+      <div class="auth-brand">
+        <span class="brand-dot" aria-hidden="true"></span>
+        <h1>Secure<span class="brand-accent">Provision</span></h1>
+      </div>
+
+      <!-- Logged-out state: login / sign up forms -->
+      <div id="authFormsWrapper">
+        <form class="auth-form" id="loginForm">
+          <label class="auth-label" for="usernameInput">Username</label>
+          <input type="text" id="usernameInput" class="auth-input" placeholder="Enter username" autocomplete="username" />
+
+          <label class="auth-label" for="passwordInput">Password</label>
+          <input type="password" id="passwordInput" class="auth-input" placeholder="Enter password" autocomplete="current-password" />
+
+          <button type="submit" class="auth-login-btn">Login</button>
+
+          <p class="auth-toggle-text">Don't have an account? <a href="#" id="showSignupLink" class="auth-toggle-link">Create an account</a></p>
+        </form>
+
+        <form class="auth-form" id="signupForm" style="display: none;">
+          <label class="auth-label" for="signupUsername">Username</label>
+          <input type="text" id="signupUsername" class="auth-input" placeholder="Choose a username" autocomplete="username" />
+
+          <label class="auth-label" for="signupEmail">Email</label>
+          <input type="email" id="signupEmail" class="auth-input" placeholder="you@example.com" autocomplete="email" />
+
+          <label class="auth-label" for="signupPassword">Password</label>
+          <input type="password" id="signupPassword" class="auth-input" placeholder="Create a password" autocomplete="new-password" />
+
+          <button type="button" id="sendVerificationBtn" class="auth-login-btn">Send Verification Code</button>
+
+          <div id="verificationCodeGroup" class="auth-verification-group" style="display: none;">
+            <label class="auth-label" for="verificationCodeInput">Verification Code</label>
+            <input type="text" id="verificationCodeInput" class="auth-input" placeholder="Enter the code we sent you" />
+          </div>
+
+          <button type="submit" class="auth-login-btn">Sign Up</button>
+
+          <p class="auth-toggle-text">Already have an account? <a href="#" id="showLoginLink" class="auth-toggle-link">Log in</a></p>
+        </form>
+      </div>
+
+      <!-- Logged-in state: account info + logout, shown instead of the
+           forms above once authenticated. -->
+      <div id="accountPanel" style="display: none;">
+        <div class="account-info">
+          <span class="role-dot" aria-hidden="true"></span>
+          <div>
+            <p class="account-username" id="accountUsernameLabel">username</p>
+            <p class="account-role">Role: <strong id="userRoleLabel">User</strong></p>
+          </div>
+        </div>
+        <button id="logoutBtn" class="delete-btn">Logout</button>
+      </div>
+    </aside>
+
+    <!-- ===================== MAIN CONTENT AREA ===================== -->
+    <div class="main-content-area">
+
+      <!-- ------------- LANDING PAGE ------------- -->
+      <div id="landing-page" class="landing-page">
+        <button id="sidebarToggleBtn" class="sidebar-toggle-btn" style="display: none;" aria-label="Account menu">
+          <svg viewBox="0 0 24 24" width="20" height="20"><circle cx="12" cy="8" r="4" fill="none" stroke="currentColor" stroke-width="2"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+        </button>
+
+        <div class="landing-header">
+          <h2>Welcome to SecureProvision</h2>
+          <p>Select a workspace to get started</p>
+        </div>
+
+        <div class="landing-cards">
+          <button class="landing-card" data-view="ai-assistance-view">
+            <span class="landing-card-icon">
+              <svg viewBox="0 0 24 24" width="24" height="24"><path d="M12 2l2.4 6.6L21 11l-6.6 2.4L12 20l-2.4-6.6L3 11l6.6-2.4L12 2z" fill="#080b10"/></svg>
+            </span>
+            <h3>AI Assistance</h3>
+            <p>Design and provision network topologies with an AI copilot.</p>
+          </button>
+
+          <button class="landing-card" data-view="training-view">
+            <span class="landing-card-icon">
+              <svg viewBox="0 0 24 24" width="24" height="24"><path d="M12 3L2 8l10 5 8-4v6h2V8l-10-5zM6 12.18v4.68C6 19.13 8.69 21 12 21s6-1.87 6-4.14v-4.68l-6 3-6-3z" fill="#080b10"/></svg>
+            </span>
+            <h3>Training</h3>
+            <p>Guided lessons on network provisioning and security fundamentals.</p>
+          </button>
+
+          <button class="landing-card" data-view="troubleshooting-view">
+            <span class="landing-card-icon">
+              <svg viewBox="0 0 24 24" width="24" height="24"><path d="M12 2a5 5 0 00-5 5v1.17A4 4 0 005 12v1a4 4 0 002 3.46V19a3 3 0 003 3h4a3 3 0 003-3v-2.54A4 4 0 0019 13v-1a4 4 0 00-2-3.83V7a5 5 0 00-5-5z" fill="#080b10"/></svg>
+            </span>
+            <h3>Troubleshooting</h3>
+            <p>Diagnose connectivity, cabling, and configuration issues.</p>
+          </button>
+
+          <button class="landing-card" id="adminPanelCard" data-view="admin-view" style="display: none;">
+            <span class="landing-card-icon">
+              <svg viewBox="0 0 24 24" width="24" height="24"><path d="M12 2l7 4v6c0 5-3.5 8.5-7 10-3.5-1.5-7-5-7-10V6l7-4z" fill="#080b10"/></svg>
+            </span>
+            <h3>Admin Panel</h3>
+            <p>Grant developer access to other accounts.</p>
+          </button>
+        </div>
+      </div>
+
+      <!-- ==========================================================
+           AI ASSISTANCE VIEW
+           Everything below (header, canvas, palette, chat) is the
+           EXACT existing UI, unchanged, just wrapped in this view
+           container and hidden by default.
+      =========================================================== -->
+      <div id="ai-assistance-view" class="app-view" style="display: none;">
+        <button class="back-home-btn" data-view="landing-page">
+          <svg viewBox="0 0 24 24" width="14" height="14"><path d="M19 12H5M12 19l-7-7 7-7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          Back to Home
+        </button>
+
+        <!-- ===================== HEADER ===================== -->
+        <header class="app-header">
+          <div class="brand">
+            <span class="brand-dot" aria-hidden="true"></span>
+            <h1>Secure<span class="brand-accent">Provision</span></h1>
+          </div>
+
+          <div class="header-actions">
+            <div class="device-controls">
+              <select id="device-type" class="device-select" aria-label="Device type to add">
+                <option value="router">Router</option>
+                <option value="switchL2">Switch - L2</option>
+                <option value="switchL3">Switch - L3</option>
+                <option value="pc">PC</option>
+                <option value="server">Server</option>
+                <option value="ap">Access Point</option>
+                <option value="firewall">Firewall</option>
+              </select>
+
+              <button id="addDeviceBtn" class="add-node-btn">
+                <svg viewBox="0 0 24 24" width="16" height="16"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 8v8M8 12h8" stroke="currentColor" stroke-width="2"/></svg>
+                Add Device
+              </button>
+
+              <button id="connectBtn" class="connect-btn">
+                <svg viewBox="0 0 24 24" width="16" height="16"><path d="M5 19L19 5M19 5h-6M19 5v6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                Connect Devices
+              </button>
+
+              <button id="deleteBtn" class="delete-btn">
+                <svg viewBox="0 0 24 24" width="16" height="16"><path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                Delete Selected
+              </button>
+
+              <button id="newProjectBtn" class="new-project-btn">
+                <svg viewBox="0 0 24 24" width="16" height="16"><path d="M12 5v14M5 12h14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+                New Project
+              </button>
+
+              <button id="saveProjectBtn" class="new-project-btn">
+                <svg viewBox="0 0 24 24" width="16" height="16"><path d="M5 4h11l3 3v13H5zM8 4v5h7V4M8 20v-6h8v6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                Save Project
+              </button>
+
+              <button id="myProjectsBtn" class="new-project-btn">
+                <svg viewBox="0 0 24 24" width="16" height="16"><path d="M3 7a2 2 0 012-2h4l2 2h8a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg>
+                My Projects
+              </button>
+
+              <button id="exportBtn" class="new-project-btn">
+                <svg viewBox="0 0 24 24" width="16" height="16"><path d="M12 3v12m0 0l-4-4m4 4l4-4M5 21h14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                Export TXT
+              </button>
+            </div>
+
+            <span id="currentProjectChip" class="current-project-chip" style="display: none;"></span>
+
+            <span class="status-chip">
+              <span class="chip-dot"></span>
+              Tunnel Encrypted
+            </span>
+          </div>
+        </header>
+
+        <!-- ===================== MAIN LAYOUT ===================== -->
+        <div class="app-body">
+
+          <!-- ------------- CANVAS / WORKSPACE ------------- -->
+          <main class="canvas-area">
+            <div class="canvas-meta">
+              <span id="nodeCount">0 nodes</span>
+              <span class="meta-sep">/</span>
+              <span id="edgeCount">0 links</span>
+            </div>
+            <div id="network-container"></div>
+          </main>
+
+          <!-- ------------- RESIZE HANDLE ------------- -->
+          <div id="resizer" class="resizer" role="separator" aria-orientation="vertical" aria-label="Resize assistant panel"></div>
+
+          <!-- ------------- AI ASSISTANT SIDEBAR ------------- -->
+          <aside class="assistant-panel">
+            <div class="assistant-header">
+              <span class="pulse-icon" aria-hidden="true"></span>
+              <div>
+                <h2>Provisioning Assistant</h2>
+                <p>Ask it to build or audit your topology</p>
+              </div>
+            </div>
+
+            <div class="chat-messages" id="chatMessages">
+              <div class="msg msg-assistant">
+                <div class="msg-avatar">AI</div>
+                <div class="msg-bubble">
+                  Ready when you are. I can scaffold a topology, suggest firewall rules,
+                  or flag risky exposures on the canvas.
+                </div>
+              </div>
+            </div>
+
+            <div class="chat-input-row">
+              <textarea
+                id="chatInput"
+                class="chat-input"
+                rows="1"
+                placeholder="e.g. Add a DMZ with a reverse proxy..."
+                aria-label="Message the provisioning assistant"
+              ></textarea>
+              <button id="sendBtn" class="send-btn" aria-label="Send message">
+                <svg viewBox="0 0 24 24" width="18" height="18"><path fill="currentColor" d="M3 11l18-8-8 18-2-8-8-2z"/></svg>
+              </button>
+            </div>
+          </aside>
+
+        </div>
+      </div>
+      <!-- ===================== END AI ASSISTANCE VIEW ===================== -->
+
+      <!-- ------------- TRAINING VIEW ------------- -->
+      <div id="training-view" class="app-view" style="display: none;">
+        <button class="back-home-btn" data-view="landing-page">
+          <svg viewBox="0 0 24 24" width="14" height="14"><path d="M19 12H5M12 19l-7-7 7-7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          Back to Home
+        </button>
+        <div class="lab-view-content">
+          <div class="lab-view-header">
+            <h2>Training</h2>
+            <button id="addLabBtnTraining" class="add-lab-btn new-project-btn" data-category="TRAINING" style="display: none;">
+              <svg viewBox="0 0 24 24" width="16" height="16"><path d="M12 5v14M5 12h14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+              Add New Lab
+            </button>
+          </div>
+          <ul class="lab-list" id="labListTraining">
+            <li class="lab-list-empty">Loading labs...</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- ------------- TROUBLESHOOTING VIEW ------------- -->
+      <div id="troubleshooting-view" class="app-view" style="display: none;">
+        <button class="back-home-btn" data-view="landing-page">
+          <svg viewBox="0 0 24 24" width="14" height="14"><path d="M19 12H5M12 19l-7-7 7-7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          Back to Home
+        </button>
+        <div class="lab-view-content">
+          <div class="lab-view-header">
+            <h2>Troubleshooting</h2>
+            <button id="addLabBtnTroubleshooting" class="add-lab-btn new-project-btn" data-category="TROUBLESHOOTING" style="display: none;">
+              <svg viewBox="0 0 24 24" width="16" height="16"><path d="M12 5v14M5 12h14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+              Add New Lab
+            </button>
+          </div>
+          <ul class="lab-list" id="labListTroubleshooting">
+            <li class="lab-list-empty">Loading labs...</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- ------------- LAB UPLOAD MODAL (shared by both views above) ------------- -->
+      <div id="labUploadModal" class="lab-upload-modal" style="display: none;">
+        <div class="lab-upload-card">
+          <h3 id="labUploadModalTitle">Add New Lab</h3>
+          <form id="labUploadForm">
+            <label class="auth-label" for="labTitleInput">Lab Title</label>
+            <input type="text" id="labTitleInput" class="auth-input" placeholder="e.g. VLAN Troubleshooting Basics" required />
+
+            <label class="auth-label" for="labFileInput">Packet Tracer File (.pkt / .pka)</label>
+            <input type="file" id="labFileInput" class="auth-input" accept=".pkt,.pka" required />
+
+            <p id="labUploadStatus" class="auth-toggle-text"></p>
+
+            <div class="lab-upload-actions">
+              <button type="button" id="labUploadCancelBtn" class="delete-btn">Cancel</button>
+              <button type="submit" class="auth-login-btn">Upload</button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <!-- ------------- SAVE PROJECT MODAL ------------- -->
+      <div id="saveProjectModal" class="lab-upload-modal" style="display: none;">
+        <div class="lab-upload-card">
+          <h3>Save Project</h3>
+          <form id="saveProjectForm">
+            <label class="auth-label" for="saveProjectNameInput">Project Name</label>
+            <input type="text" id="saveProjectNameInput" class="auth-input" maxlength="100" placeholder="e.g. Branch Office VLAN Design" required autocomplete="off" />
+
+            <p id="saveProjectStatus" class="auth-toggle-text"></p>
+
+            <div class="lab-upload-actions">
+              <button type="button" id="saveProjectCancelBtn" class="delete-btn">Cancel</button>
+              <button type="submit" id="saveProjectSubmitBtn" class="auth-login-btn">Save</button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <!-- ------------- MY PROJECTS MODAL ------------- -->
+      <div id="projectsModal" class="lab-upload-modal" style="display: none;">
+        <div class="lab-upload-card projects-card">
+          <h3>My Projects</h3>
+          <ul id="projectsList" class="projects-list"></ul>
+          <p id="projectsStatus" class="auth-toggle-text"></p>
+          <div class="lab-upload-actions">
+            <button type="button" id="projectsCloseBtn" class="delete-btn">Close</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ------------- ADMIN PANEL VIEW (OWNER only) ------------- -->
+      <div id="admin-view" class="app-view" style="display: none;">
+        <button class="back-home-btn" data-view="landing-page">
+          <svg viewBox="0 0 24 24" width="14" height="14"><path d="M19 12H5M12 19l-7-7 7-7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          Back to Home
+        </button>
+        <div class="placeholder-view-content admin-panel-content">
+          <h2>Admin Panel</h2>
+          <p>Grant or revoke the DEVELOPER role for an existing user.</p>
+
+          <div class="admin-grant-form">
+            <label class="auth-label" for="targetUsernameInput">Target Username</label>
+            <input type="text" id="targetUsernameInput" class="auth-input" placeholder="Username to promote/demote" />
+            <div class="admin-role-actions">
+              <button id="grantDeveloperBtn" class="auth-login-btn">Grant Developer Role</button>
+              <button id="revokeDeveloperBtn" class="delete-btn">Revoke Developer Role</button>
+            </div>
+            <p id="grantDeveloperStatus" class="auth-toggle-text"></p>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <script src="https://unpkg.com/vis-network/standalone/umd/vis-network.min.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
